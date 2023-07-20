@@ -13,24 +13,39 @@ from .models import *
 #     is_published = forms.BooleanField(label='Публікація', required=False, initial=True)
 #     cat = forms.ModelChoiceField(queryset=Category.objects.all(), label='Категорія', empty_label='Категорія не обрана')
 
+# Оголошуємо клас форми AddPostForm, який успадковується від форми ModelForm.
 class AddPostForm(forms.ModelForm):
     captcha = CaptchaField()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['cat'].empty_label = "Категория не выбрана"
+        self.fields['cat'].empty_label = "Категорія не обрана"
 
+    # Клас Meta визначає метадані для форми.
     class Meta:
+        # Пов'язуємо форму з моделлю Women.
         model = Women
+        # Вибираємо поля моделі, які будуть використовуватись у формі.
         fields = ['title', 'slug', 'content', 'photo', 'is_published', 'cat']
+        # Використовуємо віджети для полів форми, щоб змінити їх зовнішній вигляд.
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-input'}),
-            'content': forms.Textarea(attrs={'cols': 60, 'rows': 10})
+            'title': forms.TextInput(attrs={'class': 'form-input'}),  # Встановлюємо клас для поля заголовка.
+            'content': forms.Textarea(attrs={'cols': 60, 'rows': 10})  # Встановлюємо розміри поля вмісту.
         }
+
+    # Метод clean_title використовується для валідації поля title.
     def clean_title(self):
+        # Отримуємо введені дані для поля title.
         title = self.cleaned_data['title']
+
+        # Перевіряємо, чи не перевищує довжину введеного заголовка 40 символів.
+        # Якщо так, піднімаємо виняток з повідомленням про помилку.
         if len(title) > 40:
             raise ValidationError('Максимальна кількість символів: 40')
+
+        # Повертаємо очищений заголовок.
         return title
+
+    # Метод clean_slug використовується для валідації поля slug (все теж саме шо і з title).
     def clean_slug(self):
         slug = self.cleaned_data['slug']
         if len(slug) > 40:
@@ -54,5 +69,5 @@ class LoginUserForm(AuthenticationForm):
 class ContactForm(forms.Form):
     name = forms.CharField(label='Ім\'я', max_length=255)
     email = forms.EmailField(label='Email')
-    content = forms.CharField(widget=forms.Textarea(attrs={'cols':60, 'rows': 10}))
+    content = forms.CharField(widget=forms.Textarea(attrs={'cols': 60, 'rows': 10}))
     captcha = CaptchaField()

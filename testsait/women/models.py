@@ -14,12 +14,19 @@ class Women(models.Model):
     is_published = models.BooleanField(default=True, verbose_name='Публікація')
     cat = models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name='Категорія')
 
+    # Метод для представлення об'єкта моделі у вигляді рядка (заголовок статті).
     def __str__(self):
         return self.title
 
+    # Метод, який повертає URL для перегляду статті.
     def get_absolute_url(self):
+        # Використовуємо функцію reverse для отримання URL-адреси з використанням імені маршруту 'post'.
+        # Значення 'post_slug' для ключа kwargs вказує на ім'я параметра, який буде переданий у URL.
+        # Значення self.slug вказує на значення поля slug для поточного об'єкта.
+        # Таким чином, ми створюємо URL зі значенням slug об'єкта, який буде використовуватись у маршруті.
         return reverse('post', kwargs={'post_slug': self.slug})
 
+    # Вкладений клас Meta, який визначає деякі метадані для моделі.
     class Meta:
         verbose_name = "Відомі жінки"
         verbose_name_plural = "Відомі жінки"
