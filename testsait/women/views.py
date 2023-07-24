@@ -1,15 +1,19 @@
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
+from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, FormView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+
+from testsait.settings import EMAIL_HOST_USER
 from .forms import *
 from .models import *
 from .utils import *
-
+import smtplib
+from email.mime.text import MIMEText
 
 # Клас WomenHome успадковує класи DataMixin і ListView для відображення списку жінок на головній сторінці сайту.
 class WomenHome(DataMixin, ListView):
@@ -216,9 +220,33 @@ class ContactFormView(DataMixin, FormView):
         c_def = self.get_user_context(title='Зворотній зв\'язок')
         return dict(list(context.items()) + list(c_def.items()))
 
+    # def form_valid(self, form):
+    #     # print(form.cleaned_data)
+    #     name = form.cleaned_data['name']
+    #     email = form.cleaned_data['email']
+    #     content = form.cleaned_data['content']
+    #     sender = "taknado425@gmail.com"
+    #     email_password = "qqxgjadzwmowagnk"
+    #     server = smtplib.SMTP("smtp.gmail.com", 587)
+    #     server.starttls()
+    #     try:
+    #         server.login(sender, email_password)
+    #         message = f'{name}\n{email}\n{content}'
+    #         msg = MIMEText(message)
+    #         msg["Subject"] = "Articles-Page. Contact Us"
+    #         server.sendmail(sender, sender, msg.as_string())
+    #
+    #         print("The message was sent successfully!")
+    #     except Exception as _ex:
+    #         print(f"{_ex}\nCheck your login or password please!")
+    #
+    #     return redirect('home')
+
     def form_valid(self, form):
-        # Виводимо в консоль вміст даних з форми, введених користувачем.
-        print(form.cleaned_data)
+        name = form.cleaned_data['name']
+        email = form.cleaned_data['email']
+        content = form.cleaned_data['content']
+        send_mail('Articles-Page. Contact Us', f'{name}\n{email}\n{content}', EMAIL_HOST_USER, [EMAIL_HOST_USER])
         return redirect('home')
 
 
